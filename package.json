@@ -1,0 +1,13 @@
+{
+  "name": "flapptris",
+  "version": "1.0.0",
+  "description": "Flapptris - Flappy Bird x Tetris Crossover Arcade Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/test_physics_and_logic.js && node tests/test_simulation.js"
+  },
+  "keywords": ["game", "tetris", "flappy-bird", "arcade", "canvas"],
+  "author": "futuremoney",
+  "license": "MIT"
+}

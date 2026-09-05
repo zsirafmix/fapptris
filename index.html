@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flapptris - Flappy Bird x Tetris Crossover</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="arcade-wrapper">
+    <!-- Top Header & HUD -->
+    <header class="game-header">
+      <div class="logo-area">
+        <h1 class="game-title">FLAPP<span>TRIS</span></h1>
+      </div>
+
+      <div class="hud-bar">
+        <div class="hud-item">
+          <span class="hud-label">PONT</span>
+          <span id="hudScore" class="hud-value score-val">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">REKORD</span>
+          <span id="hudHighScore" class="hud-value highscore-val">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">SZINT</span>
+          <span id="hudLevel" class="hud-value">1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">SOROK</span>
+          <span id="hudLines" class="hud-value">0</span>
+        </div>
+        <div class="hud-item next-preview-box">
+          <span class="hud-label">KÖVETKEZŐ</span>
+          <canvas id="nextPieceCanvas" width="80" height="60"></canvas>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnToggleSound" class="icon-btn" title="Hang be/ki">🔊</button>
+        <button id="btnPause" class="icon-btn" title="Szünet (P)">⏸</button>
+      </div>
+    </header>
+
+    <!-- Canvas Stage and Overlays -->
+    <main class="canvas-container">
+      <canvas id="gameCanvas" width="960" height="600"></canvas>
+
+      <!-- Start Screen Overlay -->
+      <div id="startScreen" class="overlay">
+        <div class="overlay-card neon-box">
+          <div class="title-decor">
+            <span class="tetro-t">T</span>
+            <span class="tetro-l">L</span>
+            <span class="tetro-i">I</span>
+            <span class="tetro-s">S</span>
+          </div>
+          <h2 class="overlay-title">FLAPP<span>TRIS</span></h2>
+          <p class="overlay-subtitle">A Flappy Bird és a Tetris keresztezése</p>
+
+          <div class="instructions-panel">
+            <h3>JÁTÉKSZABÁLYOK</h3>
+            <ul>
+              <li><strong>Folyamatos repülés:</strong> Az elem balról jobbra halad, a gravitáció lefelé húzza.</li>
+              <li><strong>Felületi csúszás:</strong> Ha az elem felületre ér, továbbcsúszik, amíg nincs előtte akadály.</li>
+              <li><strong>Lock-zóna:</strong> A jobb oldali Tetris rácsba érve az elem a helyére zár és rögzül.</li>
+              <li><strong>Sortörlés:</strong> Tölts meg teljes sorokat a 10 oszlopos veremben extra pontokért!</li>
+            </ul>
+
+            <div class="controls-grid">
+              <div class="control-badge"><kbd>Space</kbd> / <kbd>Kattintás</kbd><span>Felfelé impulzus (Flap)</span></div>
+              <div class="control-badge"><kbd>Q</kbd> / <kbd>←</kbd><span>Forgatás balra (90°)</span></div>
+              <div class="control-badge"><kbd>E</kbd> / <kbd>→</kbd><span>Forgatás jobbra (90°)</span></div>
+              <div class="control-badge"><kbd>S</kbd> / <kbd>↓</kbd><span>Gyors lerakás (Drop)</span></div>
+              <div class="control-badge"><kbd>P</kbd> / <kbd>Esc</kbd><span>Szünet</span></div>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button id="btnStartGame" class="arcade-btn primary-btn">JÁTÉK INDÍTÁSA</button>
+            <button id="btnShowLeaderboard" class="arcade-btn secondary-btn">🏆 RANGLISTA</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pause Screen Overlay -->
+      <div id="pauseScreen" class="overlay hidden">
+        <div class="overlay-card neon-box small-box">
+          <h2 class="overlay-title">SZÜNET</h2>
+          <p class="pause-desc">A játék jelenleg áll.</p>
+          <div class="button-col">
+            <button id="btnResumeGame" class="arcade-btn primary-btn">FOLYTATÁS</button>
+            <button id="btnRestartFromPause" class="arcade-btn secondary-btn">ÚJRAINDÍTÁS</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Screen Overlay -->
+      <div id="gameOverScreen" class="overlay hidden">
+        <div class="overlay-card neon-box gameover-box">
+          <h2 class="overlay-title gameover-title">JÁTÉK VÉGE</h2>
+
+          <div class="score-summary">
+            <div class="final-score-label">ELÉRT PONTSZÁM</div>
+            <div id="goFinalScore" class="final-score-number">0</div>
+            <div id="goNewRecord" class="new-record-badge" style="display: none;">🌟 ÚJ REKORD! 🌟</div>
+          </div>
+
+          <div class="save-score-section">
+            <label for="goPlayerName">Add meg a neved a ranglistához (max. 20 betű):</label>
+            <div class="input-action-row">
+              <input type="text" id="goPlayerName" maxlength="20" placeholder="Játékos neve..." autocomplete="off">
+              <button id="btnSaveScore" class="arcade-btn save-btn">MENTÉS</button>
+            </div>
+            <div id="goSaveMessage" class="save-message"></div>
+          </div>
+
+          <div class="button-row">
+            <button id="btnRestartGame" class="arcade-btn primary-btn">ÚJ JÁTÉK</button>
+            <button id="btnGoLeaderboard" class="arcade-btn secondary-btn">🏆 RANGLISTA</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard Modal -->
+      <div id="leaderboardModal" class="overlay hidden">
+        <div class="overlay-card neon-box leaderboard-box">
+          <div class="modal-header">
+            <h2 class="overlay-title">🏆 TOP 10 RANGLISTA</h2>
+            <button id="btnCloseLeaderboard" class="close-btn" title="Bezárás">✕</button>
+          </div>
+
+          <div class="leaderboard-table-container">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>HELY</th>
+                  <th>JÁTÉKOS</th>
+                  <th class="score-col">PONT</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Mobile Virtual Controls -->
+    <footer class="mobile-controls">
+      <div class="control-cluster-left">
+        <button id="btnRotateLeft" class="touch-btn" title="Balra forgatás">↶ Q</button>
+        <button id="btnRotateRight" class="touch-btn" title="Jobbra forgatás">↷ E</button>
+        <button id="btnDrop" class="touch-btn drop-btn" title="Gyors lerakás">⤓ S</button>
+      </div>
+      <div class="control-cluster-right">
+        <button id="btnFlap" class="touch-btn flap-btn">▲ FLAP (Space)</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="src/constants.js"></script>
+  <script src="src/SoundManager.js"></script>
+  <script src="src/Piece.js"></script>
+  <script src="src/Board.js"></script>
+  <script src="src/Physics.js"></script>
+  <script src="src/ScoreManager.js"></script>
+  <script src="src/LeaderboardManager.js"></script>
+  <script src="src/InputManager.js"></script>
+  <script src="src/Renderer.js"></script>
+  <script src="src/Game.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
