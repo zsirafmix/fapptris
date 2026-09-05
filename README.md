@@ -2,7 +2,7 @@
 
 Egy böngészőben futó, modern arcade játék, amely ötvözi a Flappy Bird repülési fizikáját a Tetris forgatásával, rácshoz illesztésével és sortörlésével.
 
-![Flapptris Screenshot](screenshot.png) <!-- Opcionális -->
+![Flapptris Screenshot](promo.jpg) <!-- Opcionális -->
 
 ## 🕹️ Irányítás
 
