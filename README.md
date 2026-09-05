@@ -28,7 +28,7 @@ Egy böngészőben futó, modern arcade játék, amely ötvözi a Flappy Bird re
 
 ```bash
 # 1. Klónozás
-git clone https://github.com/zsirafmix/flapptris.git
+git clone https://github.com/zsirafmix/fapptris.git
 cd flapptris
 
 # 2. Indítás Node.js-szel:
